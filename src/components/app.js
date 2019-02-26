@@ -45,12 +45,12 @@ class App extends React.Component {
     }
   }
 
-  removeFromCart = item => {
+  removeFromCart = (item, removeCompletely) => {
     const index = this.state.cartItems.findIndex(i => item.id === i.item.id)
 
     if (index > -1) {
       // reduce item's count
-      if (this.state.cartItems[index].quantity > 1) {
+      if (this.state.cartItems[index].quantity > 1 && !removeCompletely) {
         this.setState(state => ({
           cartItems: [
             ...state.cartItems.slice(0, index),

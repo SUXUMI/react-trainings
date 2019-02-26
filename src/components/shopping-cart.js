@@ -21,13 +21,25 @@ const ShoppingCartItems = ({ items, removeFromCart }) => (
 
         <button
           title="remove item"
-          className="btn btn-danger btn-sm ml-3"
+          className="btn btn-warning btn-sm ml-3"
           onClick={event => {
             event.preventDefault();
             removeFromCart(i.item);
           }}
           >
           <i className="fas fa-minus" />
+        </button>
+
+
+        <button
+          title="remove completly"
+          className="btn btn-danger btn-sm ml-3"
+          onClick={event => {
+            event.preventDefault();
+            removeFromCart(i.item, true);
+          }}
+          >
+          <i className="fas fa-times" />
         </button>
       </li>
     ))}
