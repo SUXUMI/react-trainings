@@ -2,6 +2,7 @@ const UserModel = require('../models/user')
 const PostModel = require('../models/post')
 const CommentModel = require('../models/comment')
 const Token = require('../assets/token')
+const {app: {postsPerPage}} = require('../config')
 
 const resolvers = {
     Query: {
@@ -28,22 +29,30 @@ const resolvers = {
 
         authorById: async (_, {id, ...args}) => (await UserModel.findById(id).exec()),
         
-        posts: async (_, args, context, info) => {
-            // console.log('info: ', info)
-            const posts = await PostModel.find().exec()
+        posts: async (_, {page, ...args}, context, info) => {
+            try {
+                const skip = page * postsPerPage
 
-            if (!posts) {
-                return null
-            }
+                const sort = [['created', 'descending']]
 
-            const p = posts.map(async post => {
-                return {
-                    ...post.toObject(),
-                    author: await UserModel.findById(post.userId).exec()
+                const posts = await PostModel.find().sort(sort).skip(skip).limit(postsPerPage).exec()
+
+                if (!posts) {
+                    return null
                 }
-            })
 
-            return await Promise.all(p)
+                const p = posts.map(async post => {
+                    return {
+                        ...post.toObject(),
+                        author: await UserModel.findById(post.userId).exec()
+                    }
+                })
+
+                return await Promise.all(p)
+            }
+            catch (e) {
+                throw new Error(e.message)
+            }
         },
 
         postById: async (_, {id, ...args}) => {
@@ -80,8 +89,6 @@ const resolvers = {
                 })
 
                 await post.save();
-
-                console.log('post:', post);
 
                 return {...post.toObject(), author: user}
             }

@@ -38,7 +38,7 @@ const typeDefs = gql`
     type Query {
         authors(includePosts: Boolean = false, page: Int = 0): [Author]
         authorById(id: ID!): Author
-        posts: [Post]
+        posts(page: Int = 0): [Post]
         postById(id: ID!): Post
     }
 
