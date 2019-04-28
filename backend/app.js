@@ -9,7 +9,6 @@ const { ApolloServer, gql } = require('apollo-server-express')
 const bodyParser = require('body-parser')
 const cors = require('cors')
 const config = require('./app/config')
-const mongoose = require('./app/database')
 const authRouter = require('./app/routers/auth')
 const userRouter = require('./app/routers/user')
 

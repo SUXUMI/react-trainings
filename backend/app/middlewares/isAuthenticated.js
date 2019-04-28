@@ -3,7 +3,7 @@ const Token = require('../assets/token')
 
 const isAuthenticated = async (req, res, next) => {
   try {
-      const user = Token.getUserByToken(token)
+      const user = await Token.getUserByToken(req.headers.token)
 
       req.user = user
 
