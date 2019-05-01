@@ -15,11 +15,13 @@ const typeDefs = gql`
         _id: ID
         title: String
         description: String
+        shortDescription: String
         created: String
         modified: String
         userId: String
         author: Author
         comments: [Comment]
+        commentsCount: Int
     }
 
     type Comment {
@@ -35,10 +37,17 @@ const typeDefs = gql`
         comment: String!
     }
 
+    type PostsResponse {
+        page: Int!
+        totalPages: Int!
+        totalPosts: Int!
+        list: [Post]
+    }
+
     type Query {
         authors(includePosts: Boolean = false, page: Int = 0): [Author]
         authorById(id: ID!): Author
-        posts(page: Int = 0): [Post]
+        posts(page: Int = 1, authorId: ID = null): PostsResponse
         postById(id: ID!): Post
     }
 

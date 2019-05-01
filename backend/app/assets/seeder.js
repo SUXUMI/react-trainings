@@ -3,8 +3,6 @@ const bcrypt = require('bcrypt-nodejs')
 const UserModel = require('../models/user')
 const PostModel = require('../models/post')
 const CommentModel = require('../models/comment')
-const mongoose = require('../database')
-
 
 const randomMinMaxInt = function(min, max) {
     return Math.floor(Math.random() * (max - min)) + min

@@ -29,26 +29,66 @@ const resolvers = {
 
         authorById: async (_, {id, ...args}) => (await UserModel.findById(id).exec()),
         
-        posts: async (_, {page, ...args}, context, info) => {
+        posts: async (_, {page, authorId, ...args}, context, info) => {
             try {
-                const skip = page * postsPerPage
+                const skip = ((page || 1) - 1) * postsPerPage
 
                 const sort = [['created', 'descending']]
 
-                const posts = await PostModel.find().sort(sort).skip(skip).limit(postsPerPage).exec()
+                let totalPosts
 
-                if (!posts) {
-                    return null
+                let posts
+
+                // https://mongoosejs.com/docs/api.html
+                //DeprecationWarning: collection.count is deprecated, 
+                // and will be removed in a future version. 
+                // Use collection.countDocuments or 
+                // collection.estimatedDocumentCount instead
+                // await PostModel.find().count()
+                if (authorId) {
+                    totalPosts = await PostModel.find({userId: authorId}).count()
+                    
+                    posts = await PostModel
+                        .find({userId: authorId})
+                        .sort(sort)
+                        .skip(skip)
+                        .limit(postsPerPage)
+                        .exec()
+                }
+                else {
+                    totalPosts = await PostModel.find().count()
+                    
+                    posts = await PostModel
+                        .find()
+                        .sort(sort)
+                        .skip(skip)
+                        .limit(postsPerPage)
+                        .exec()
                 }
 
-                const p = posts.map(async post => {
-                    return {
-                        ...post.toObject(),
-                        author: await UserModel.findById(post.userId).exec()
-                    }
-                })
+                // totalPosts = await PostModel.find(() => (
+                //     authorId ? {userId: authorId} : {userId: authorId}
+                // )).count()
 
-                return await Promise.all(p)
+                const totalPages = Math.ceil(totalPosts / postsPerPage);
+
+                let list = {}
+
+                if (posts) {
+                    const p = posts.map(async post => {
+                        return {
+                            ...post.toObject(),
+                            shortDescription: post.description.substring(0, 256),
+                            author: await UserModel.findById(post.userId).exec(),
+                            commentsCount: await CommentModel.find({postId: post._id}).count(),
+                        }
+                    })
+
+                    list = await Promise.all(p)
+                }
+
+
+                return {page, totalPages, totalPosts, list }
             }
             catch (e) {
                 throw new Error(e.message)
@@ -66,7 +106,8 @@ const resolvers = {
                 result = {
                     ...post.toObject(),
                     author: await UserModel.findById(post.userId).exec(),
-                    comments: await CommentModel.find({postId: post._id})
+                    comments: await CommentModel.find({postId: post._id}),
+                    commentsCount: await CommentModel.find({postId: post._id}).count(),
                 }
 
                 return result

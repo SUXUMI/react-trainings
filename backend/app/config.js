@@ -4,7 +4,7 @@ const config = {
         title: `Blog API`,
         port: 4004,
         graphqlPath: '/my-graphql',
-        postsPerPage: 3,
+        postsPerPage: 4,
     },
     db: {
         host: 'localhost',
