@@ -175,7 +175,7 @@ const resolvers = {
                     throw new Error('Invalid request (post not found)')
                 }
 
-                const _comment = await CommentModel.create({authorName, comment})
+                const _comment = await CommentModel.create({postId, authorName, comment})
 
                 if (!_comment) {
                     throw new Error('Unable to save comment')
